@@ -1,12 +1,9 @@
-import os
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List
+import os
 
 app = FastAPI()
 
-# CORS settings
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://aampav-frontend.onrender.com"],
@@ -15,35 +12,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Sample trade logs list
+# Simulated in-memory bot state and logs
+bot_status = {"running": False}
 trade_logs = []
-
-class TradeSignal(BaseModel):
-    symbol: str
-    action: str
-    quantity: int
 
 @app.get("/status")
 def get_status():
     return {"message": "Backend is connected and running successfully."}
 
-@app.get("/analyze")
-def analyze_market():
-    return {
-        "symbol": "AAPL",
-        "action": "buy",
-        "confidence": 0.89,
-        "notes": "AI suggests a bullish trend based on recent analysis."
-    }
+@app.post("/start-bot")
+def start_bot():
+    if not bot_status["running"]:
+        bot_status["running"] = True
+        trade_logs.append("Bot started.")
+    return {"status": "Bot started"}
 
-@app.post("/execute")
-def execute_trade(signal: TradeSignal):
-    trade_logs.append(signal)
-    return {"message": "Trade executed", "trade": signal}
+@app.post("/stop-bot")
+def stop_bot():
+    if bot_status["running"]:
+        bot_status["running"] = False
+        trade_logs.append("Bot stopped.")
+    return {"status": "Bot stopped"}
 
 @app.get("/logs")
 def get_logs():
-    return {"trades": trade_logs}
+    return {"logs": trade_logs}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
