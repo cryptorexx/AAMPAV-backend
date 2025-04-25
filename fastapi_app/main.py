@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+# Allow frontend to access this backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://aampav-frontend.onrender.com"],
@@ -25,7 +26,7 @@ def get_status():
 def start_bot():
     global bot_running
     if bot_running:
-        return {"message": "Bot already running."}
+        return {"message": "Bot is already running."}
     bot_running = True
     bot_logs.append("Bot started.")
     return {"message": "Bot started successfully."}
