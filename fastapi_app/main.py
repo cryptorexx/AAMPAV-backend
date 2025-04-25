@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# CORS setup to allow frontend to communicate
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://aampav-frontend.onrender.com"],
@@ -14,10 +13,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Status route
-@app.get("/status")
+# Global state
 bot_running = False
 bot_logs = []
+
+@app.get("/status")
+def get_status():
+    return {"message": "Backend is connected and running successfully."}
 
 @app.post("/start-bot")
 def start_bot():
@@ -40,39 +42,7 @@ def stop_bot():
 @app.get("/logs")
 def get_logs():
     return {"logs": bot_logs if bot_logs else ["Bot is not running. No activity to show."]}
-def get_status():
-    return {"message": "Backend is connected and running successfully."}
 
-# Simulated bot state
-bot_state = {"running": False}
-
-# Start bot route
-@app.post("/start-bot")
-def start_bot():
-    bot_state["running"] = True
-    return {"message": "Bot started"}
-
-# Stop bot route
-@app.post("/stop-bot")
-def stop_bot():
-    bot_state["running"] = False
-    return {"message": "Bot stopped"}
-
-# Logs route (mocked)
-@app.get("/logs")
-def get_logs():
-    if bot_state["running"]:
-        return {
-            "logs": [
-                "Trade executed at $123.45",
-                "Profit: $12.00",
-                "New trade signal received",
-            ]
-        }
-    else:
-        return {"logs": ["Bot is not running. No activity to show."]}
-
-# Server startup
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
+    uvicorn.run("fastapi_app.main:app", host="0.0.0.0", port=port)
