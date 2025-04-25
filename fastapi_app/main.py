@@ -16,6 +16,30 @@ app.add_middleware(
 
 # Status route
 @app.get("/status")
+bot_running = False
+bot_logs = []
+
+@app.post("/start-bot")
+def start_bot():
+    global bot_running
+    if bot_running:
+        return {"message": "Bot already running."}
+    bot_running = True
+    bot_logs.append("Bot started.")
+    return {"message": "Bot started successfully."}
+
+@app.post("/stop-bot")
+def stop_bot():
+    global bot_running
+    if not bot_running:
+        return {"message": "Bot is not running."}
+    bot_running = False
+    bot_logs.append("Bot stopped.")
+    return {"message": "Bot stopped successfully."}
+
+@app.get("/logs")
+def get_logs():
+    return {"logs": bot_logs if bot_logs else ["Bot is not running. No activity to show."]}
 def get_status():
     return {"message": "Backend is connected and running successfully."}
 
