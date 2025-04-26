@@ -1,34 +1,25 @@
-import os
-import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+import os
+import uvicorn
 
 app = FastAPI()
 
-# Enable frontend access
+# CORS Settings
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # currently open
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Simulated bot state and logs
 bot_running = False
 logs = []
 
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    print(f"INCOMING REQUEST: {request.method} {request.url}")
-    response = await call_next(request)
-    return response
-
 @app.get("/status")
 def get_status():
-    if bot_running:
-        return {"message": "Bot is running"}
-    return {"message": "Bot is stopped"}
+    return {"status": "Running" if bot_running else "Stopped"}
 
 @app.post("/start-bot")
 def start_bot():
@@ -50,7 +41,7 @@ def stop_bot():
 
 @app.get("/logs")
 def get_logs():
-    return {"logs": logs if logs else ["No activity recorded yet."]}
+    return {"logs": logs if logs else ["Bot is not running. No activity to show."]}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
