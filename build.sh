@@ -1,1 +1,2 @@
-chmod +x start.sh
+#!/bin/bash
+pip install -r requirements.txt
