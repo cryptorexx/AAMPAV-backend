@@ -13,31 +13,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-from fastapi import FastAPI
-
-app = FastAPI()
-
-# --- STATUS
-@app.get("/status")
-def get_status():
-    return {"status": "Stopped"}  # or running depending on your logic
-
-# --- START BOT
-@app.post("/start-bot")
-def start_bot():
-    # Start your trading bot here
-    return {"message": "Bot started"}
-
-# --- STOP BOT
-@app.post("/stop-bot")
-def stop_bot():
-    # Stop your trading bot here
-    return {"message": "Bot stopped"}
-
-# --- FETCH LOGS
-@app.get("/logs")
-def get_logs():
-    return {"logs": ["Bot started.", "Bot stopped."]}
 
 # Simulated bot state and logs
 bot_running = False
