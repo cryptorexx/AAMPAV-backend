@@ -26,7 +26,9 @@ async def log_requests(request: Request, call_next):
 
 @app.get("/status")
 def get_status():
-    return {"message": "Backend is connected and running successfully."}
+    if bot_running:
+        return {"message": "Bot is running"}
+    return {"message": "Bot is stopped"}
 
 @app.post("/start-bot")
 def start_bot():
@@ -48,8 +50,8 @@ def stop_bot():
 
 @app.get("/logs")
 def get_logs():
-    return {"logs": logs if logs else ["Bot is not running. No activity to show."]}
+    return {"logs": logs if logs else ["No activity recorded yet."]}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("fastapi_app.main:app", host="0.0.0.0", port=port)
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
