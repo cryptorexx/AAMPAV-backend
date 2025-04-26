@@ -8,7 +8,7 @@ app = FastAPI()
 # Enable frontend access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://aampav-frontend.onrender.com"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
