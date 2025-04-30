@@ -1,5 +1,31 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from execution_ai.trade_engine import TradeEngine
+
+app = FastAPI()
+trade_engine = TradeEngine()
+
+# Allow frontend requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/status")
+def get_status():
+    return {"status": "running"}
+
+@app.post("/trade")
+async def trade(request: Request):
+    data = await request.json()
+    result = trade_engine.decide_trade(data)
+    return {"result": result}
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import uvicorn
 
