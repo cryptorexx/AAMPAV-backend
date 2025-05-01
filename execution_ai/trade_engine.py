@@ -1,3 +1,6 @@
+from portfolio_ai.portfolio_manager
+import PortfolioManager
+
 class TradeEngine:
     def __init__(self):
         self.balance = 100000  # USD
