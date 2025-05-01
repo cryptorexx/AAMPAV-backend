@@ -5,6 +5,7 @@ from execution_ai.trade_engine import TradeEngine
 app = FastAPI()
 trade_engine = TradeEngine()
 
+# CORS settings
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,6 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Trade endpoint
 @app.post("/trade")
 async def trade(request: Request):
     data = await request.json()
@@ -24,22 +26,7 @@ async def trade(request: Request):
     result = trade_engine.execute_trade(symbol, side, quantity, price)
     return {"result": result}
 
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-import os
-import uvicorn
-
-app = FastAPI()
-
-# CORS Settings
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # currently open
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+# Bot control logic
 bot_running = False
 logs = []
 
@@ -72,4 +59,3 @@ def get_logs():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=10000)
-
