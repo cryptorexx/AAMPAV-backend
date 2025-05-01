@@ -1,26 +1,35 @@
-import requests
+# strategy_ai/decision_engine.py
+
+from analysis_ai.market_analyzer import analyze_market
+from execution_ai.risk_controller import RiskController
+from portfolio_manager import PortfolioManager
 
 class DecisionEngine:
-    def __init__(self, analysis_url: str):
-        self.analysis_url = analysis_url
+    def __init__(self):
+        self.risk_controller = RiskController()
+        self.portfolio_manager = PortfolioManager()
 
-    def analyze_and_decide(self, symbol: str):
-        # Step 1: Get analysis
-        try:
-            response = requests.post(self.analysis_url, json={"symbol": symbol})
-            if response.status_code != 200:
-                return {"decision": "hold", "reason": "Failed to analyze symbol"}
+    def should_execute_trade(self, symbol, side, quantity, price):
+        # Analyze the market condition
+        analysis = analyze_market(symbol)
+        trend = analysis.get("trend", "neutral")
+        confidence = analysis.get("confidence", 0.5)
 
-            analysis = response.json().get("analysis", {})
-            trend = analysis.get("trend")
-            confidence = analysis.get("confidence", 0)
+        # Check for safe market trend
+        if trend == "bearish" and side == "buy":
+            return False, f"Market trend for {symbol} is bearish. Avoid buying."
 
-            # Step 2: Decision logic
-            if trend == "bullish" and confidence >= 0.6:
-                return {"decision": "buy", "confidence": confidence}
-            elif trend == "bearish" and confidence >= 0.6:
-                return {"decision": "sell", "confidence": confidence}
-            else:
-                return {"decision": "hold", "confidence": confidence}
-        except Exception as e:
-            return {"decision": "hold", "reason": f"Error during decision-making: {e}"}
+        if trend == "bullish" and side == "sell":
+            return False, f"Market trend for {symbol} is bullish. Avoid selling."
+
+        # Check for excessive exposure
+        exposure = self.portfolio_manager.get_exposure().get(symbol, 0)
+        if side == "buy" and exposure >= 0.3:
+            return False, f"Exposure to {symbol} too high: {exposure*100:.0f}%. Limit buying."
+
+        # Risk assessment
+        is_risky, reason = self.risk_controller.is_trade_risky(symbol, side, quantity, price)
+        if is_risky:
+            return False, f"Trade rejected due to risk: {reason}"
+
+        return True, "Trade conditions are acceptable."
