@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from execution_ai.trade_engine import TradeEngine
+from analysis_ai.market_analyzer import MarketAnalyzer
 
 app = FastAPI()
 trade_engine = TradeEngine()
+market_analyzer = MarketAnalyzer()
 
-# CORS settings
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,7 +15,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Trade endpoint
 @app.post("/trade")
 async def trade(request: Request):
     data = await request.json()
@@ -26,7 +26,14 @@ async def trade(request: Request):
     result = trade_engine.execute_trade(symbol, side, quantity, price)
     return {"result": result}
 
-# Bot control logic
+@app.post("/analyze")
+async def analyze(request: Request):
+    data = await request.json()
+    symbol = data.get("symbol")
+    analysis = market_analyzer.analyze_market(symbol)
+    return {"analysis": analysis}
+
+# Additional endpoints: status, logs, start/stop bot...
 bot_running = False
 logs = []
 
