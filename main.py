@@ -5,7 +5,6 @@ from execution_ai.trade_engine import TradeEngine
 app = FastAPI()
 trade_engine = TradeEngine()
 
-# Allow frontend requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,14 +13,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/status")
-def get_status():
-    return {"status": "running"}
-
 @app.post("/trade")
 async def trade(request: Request):
     data = await request.json()
-    result = trade_engine.decide_trade(data)
+    symbol = data.get("symbol")
+    side = data.get("action")
+    quantity = data.get("quantity")
+    price = data.get("price")
+
+    result = trade_engine.execute_trade(symbol, side, quantity, price)
     return {"result": result}
 
 from fastapi import FastAPI, Request
