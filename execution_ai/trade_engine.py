@@ -1,20 +1,29 @@
-import random
-from .risk_controller import RiskController
-from .broker_interface import MockBroker
-
 class TradeEngine:
     def __init__(self):
-        self.broker = MockBroker()
-        self.risk = RiskController(self.broker)
+        self.balance = 100000  # USD
+        self.trades = []
 
-    def decide_trade(self, signal):
-        symbol = signal.get("symbol", "AAPL")
-        action = signal.get("action", "buy")
-        price = signal.get("price", 150)
-        quantity = signal.get("quantity", 1)
+    def execute_trade(self, symbol, side, quantity, price):
+        cost = quantity * price
 
-        if not self.risk.check_risk(symbol, action, quantity, price):
-            return {"status": "rejected", "reason": "risk_control"}
+        if quantity <= 0 or price <= 0:
+            return {"error": "Quantity and price must be greater than zero."}
 
-        return self.broker.place_order(symbol, action, quantity, price)
+        if side == "buy" and cost > self.balance:
+            return {"error": "Insufficient funds."}
 
+        if side == "buy":
+            self.balance -= cost
+        elif side == "sell":
+            self.balance += cost
+
+        trade = {
+            "symbol": symbol,
+            "side": side,
+            "quantity": quantity,
+            "price": price,
+            "status": "filled",
+            "balance": self.balance
+        }
+        self.trades.append(trade)
+        return trade
