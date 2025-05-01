@@ -1,5 +1,4 @@
-# broker_interface.py
-
+# execution_ai/broker_interface.py
 import os
 import requests
 
@@ -22,15 +21,7 @@ class AlpacaBroker:
             "type": type,
             "time_in_force": time_in_force
         }
-
         response = requests.post(url, json=order_data, headers=self.headers)
-        if response.status_code == 200 or response.status_code == 201:
+        if response.status_code in [200, 201]:
             return response.json()
-        else:
-            return {"error": response.json()}
-
-# Example usage for testing only:
-if __name__ == "__main__":
-    broker = AlpacaBroker()
-    result = broker.place_order("AAPL", 1, "buy")
-    print(result)
+        return {"error": response.text}
