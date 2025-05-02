@@ -10,6 +10,9 @@ CACHE_DIR = 'cache'
 MAX_LOG_AGE_DAYS = 7
 MAX_CACHE_AGE_DAYS = 3
 
+os.makedirs(LOG_DIR, exist_ok=True)
+os.makedirs(CACHE_DIR, exist_ok=True)
+
 def delete_old_files(folder_path, max_age_days):
     """Delete files older than `max_age_days` in a folder."""
     if not os.path.exists(folder_path):
