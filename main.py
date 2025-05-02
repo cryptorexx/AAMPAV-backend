@@ -1,10 +1,14 @@
 # main.py
+
+from system_maintenance import run_cleanup
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from execution_ai.smart_execution import SmartExecutor
 from analysis_ai.market_analyzer import MarketAnalyzer
 from fastapi import Query
 from payment_processor import create_payment
+
+run_cleanup()
 
 app.add_middleware(
     CORSMiddleware,
