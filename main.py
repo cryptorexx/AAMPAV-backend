@@ -3,12 +3,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from execution_ai.smart_execution import SmartExecutor
 from analysis_ai.market_analyzer import MarketAnalyzer
-
-app = FastAPI()
-smart_executor = SmartExecutor()
-market_analyzer = MarketAnalyzer()
-bot_running = False
-logs = []
+from fastapi import Query
+from payment_processor import create_payment
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,6 +31,16 @@ async def analyze(request: Request):
     symbol = data.get("symbol")
     analysis = market_analyzer.analyze_market(symbol)
     return {"analysis": analysis}
+
+@app.post("/pay")
+def generate_payment(amount: float = Query(...)):
+    return create_payment(amount)
+
+app = FastAPI()
+smart_executor = SmartExecutor()
+market_analyzer = MarketAnalyzer()
+bot_running = False
+logs = []
 
 @app.get("/status")
 def get_status():
