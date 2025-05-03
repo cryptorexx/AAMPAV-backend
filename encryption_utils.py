@@ -23,7 +23,7 @@ def save_to_env(encrypted_string):
 if __name__ == "__main__":
     generate_key()
     
-    api_key = "test-abc123456789"  # Replace this with your real API key
+    api_key = "PASTE_YOUR_REAL_API_KEY_HERE"  # Replace this with your real API key
     encrypted_api_key = encrypt_string(api_key)
     
     save_to_env(encrypted_api_key)
