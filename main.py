@@ -7,6 +7,17 @@ from execution_ai.smart_execution import SmartExecutor
 from analysis_ai.market_analyzer import MarketAnalyzer
 from fastapi import Query
 from payment_processor import create_payment
+from fastapi import FastAPI, Request, HTTPException, Depends
+import os
+
+API_KEY = os.getenv("API_KEY", "-_k7HtLtIyxUuh2HMj5mSVSvpFUxzYYkmD8asOniC3U")
+
+app = FastAPI()
+
+def verify_api_key(request: Request):
+    client_key = request.headers.get("X-API-Key")
+    if client_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
 
 run_cleanup()
 
