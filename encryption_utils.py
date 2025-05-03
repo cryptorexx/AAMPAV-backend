@@ -46,3 +46,26 @@ def load_decrypted_env_variable(env_file_path=".env", key_file_path="secret.key"
                 return decrypted_value
 
     raise ValueError("Encrypted API key not found in .env")
+
+from cryptography.fernet import Fernet
+
+def load_key(key_path="secret.key"):
+    with open(key_path, "rb") as file:
+        return file.read()
+
+def decrypt_env_value(encrypted_value, key):
+    fernet = Fernet(key)
+    return fernet.decrypt(encrypted_value.encode()).decode()
+
+def load_decrypted_credentials(env_path=".env", key_path="secret.key"):
+    key = load_key(key_path)
+    creds = {}
+    with open(env_path, "r") as env_file:
+        for line in env_file:
+            if ":" in line:
+                k, v = line.strip().split(":", 1)
+                try:
+                    creds[k] = decrypt_env_value(v, key)
+                except Exception:
+                    creds[k] = None  # Skip malformed lines
+    return creds
