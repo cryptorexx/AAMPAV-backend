@@ -10,7 +10,6 @@ from payment_processor import create_payment
 from fastapi import FastAPI, Request, HTTPException, Depends
 from execution_ai.smart_execution import start_bot
 from execution_ai.logs_handler import get_logs
-import os
 from fastapi import FastAPI
 from analysis_ai.market_analyzer import analyze_market
 from execution_ai.trade_engine import TradeEngine
