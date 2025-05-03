@@ -35,3 +35,13 @@ class DecisionEngine:
             return False, f"Risk rejected: {reason}"
 
         return decision, f"Trade approved. Trend: {trend}, Confidence: {confidence}"
+
+from strategy_ai.market_schema import MarketData
+
+def generate_signal(data: MarketData):
+    if data.trend == "up" and data.volatility < 0.3:
+        return {"action": "buy"}
+    elif data.trend == "down" and data.volatility < 0.3:
+        return {"action": "sell"}
+    else:
+        return {"action": "hold"}
