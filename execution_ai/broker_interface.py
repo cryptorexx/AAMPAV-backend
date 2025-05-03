@@ -1,27 +1,66 @@
-# execution_ai/broker_interface.py
 import os
-import requests
+from dotenv import load_dotenv
+from cryptography.fernet import Fernet
+from execution_ai.brokers.alpaca_broker import AlpacaBroker
+from execution_ai.brokers.base_broker import BaseBroker
+from encryption_utils import load_or_generate_key, encrypt_data, decrypt_data
 
-class AlpacaBroker:
-    def __init__(self):
-        self.api_key = os.getenv("ALPACA_API_KEY")
-        self.secret_key = os.getenv("ALPACA_SECRET_KEY")
-        self.base_url = "https://paper-api.alpaca.markets"
-        self.headers = {
-            "APCA-API-KEY-ID": self.api_key,
-            "APCA-API-SECRET-KEY": self.secret_key
-        }
+load_dotenv()  # Load from .env
 
-    def place_order(self, symbol, qty, side, type="market", time_in_force="gtc"):
-        url = f"{self.base_url}/v2/orders"
-        order_data = {
-            "symbol": symbol,
-            "qty": qty,
-            "side": side,
-            "type": type,
-            "time_in_force": time_in_force
-        }
-        response = requests.post(url, json=order_data, headers=self.headers)
-        if response.status_code in [200, 201]:
-            return response.json()
-        return {"error": response.text}
+# Load encryption key
+key = load_or_generate_key()
+fernet = Fernet(key)
+
+def get_or_encrypt_env_var(var_name: str, plain_value: str = None):
+    """
+    Check if an env var is encrypted. If not, encrypt and update .env.
+    """
+    current = os.getenv(var_name)
+    if current and not current.startswith("gAAAA"):
+        # Value exists but not encrypted
+        encrypted = encrypt_data(current, fernet)
+        update_env_var(var_name, encrypted)
+        return current
+    elif current and current.startswith("gAAAA"):
+        return decrypt_data(current, fernet)
+    elif plain_value:
+        encrypted = encrypt_data(plain_value, fernet)
+        update_env_var(var_name, encrypted)
+        return plain_value
+    else:
+        raise Exception(f"{var_name} not set and no fallback provided.")
+
+def update_env_var(var_name, value):
+    """
+    Update the .env file with a new encrypted value.
+    """
+    from pathlib import Path
+    env_path = Path(".env")
+    lines = []
+    found = False
+    if env_path.exists():
+        with env_path.open("r") as file:
+            for line in file:
+                if line.startswith(f"{var_name}="):
+                    lines.append(f"{var_name}={value}\n")
+                    found = True
+                else:
+                    lines.append(line)
+    if not found:
+        lines.append(f"{var_name}={value}\n")
+
+    with env_path.open("w") as file:
+        file.writelines(lines)
+
+class BrokerFactory:
+    """
+    Returns an instance of a broker based on type.
+    """
+    @staticmethod
+    def get_broker(broker_name: str) -> BaseBroker:
+        if broker_name.lower() == "alpaca":
+            api_key = get_or_encrypt_env_var("ALPACA_API_KEY")
+            api_secret = get_or_encrypt_env_var("ALPACA_API_SECRET")
+            return AlpacaBroker(api_key, api_secret)
+        else:
+            raise ValueError(f"Unsupported broker: {broker_name}")
