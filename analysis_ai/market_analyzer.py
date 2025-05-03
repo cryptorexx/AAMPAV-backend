@@ -15,3 +15,6 @@ class MarketAnalyzer:
             "trend": trend,
             "confidence": confidence
         }
+    def analyze_market():
+        # TODO: Real analysis logic
+        return {"trend": "up", "volatility": 0.25}
