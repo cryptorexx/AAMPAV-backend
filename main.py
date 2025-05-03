@@ -11,6 +11,29 @@ from fastapi import FastAPI, Request, HTTPException, Depends
 from execution_ai.smart_execution import start_bot
 from execution_ai.logs_handler import get_logs
 import os
+from fastapi import FastAPI
+from analysis_ai.market_analyzer import analyze_market
+from execution_ai.trade_engine import TradeEngine
+from strategy_ai.decision_engine import generate_signal
+
+app = FastAPI()
+trade_engine = TradeEngine()
+
+@app.get("/status")
+def get_status():
+    return {"status": "running"}
+
+@app.post("/start-bot")
+def start_bot():
+    market_data = analyze_market()
+    signal = generate_signal(market_data)
+    result = trade_engine.execute_trade(signal)
+    return {"result": result}
+
+@app.get("/logs")
+def get_logs():
+    # Optional: return log file or in-memory logs
+    return {"logs": ["log1", "log2"]}
 
 app = FastAPI()
 
