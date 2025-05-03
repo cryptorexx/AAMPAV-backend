@@ -15,6 +15,15 @@ from fastapi import FastAPI
 from analysis_ai.market_analyzer import analyze_market
 from execution_ai.trade_engine import TradeEngine
 from strategy_ai.decision_engine import generate_signal
+from strategy_ai.market_schema import MarketData
+
+@app.post("/start-bot")
+def start_bot():
+    market_data = analyze_market()
+    validated_data = MarketData(**market_data)
+    signal = generate_signal(validated_data)
+    result = trade_engine.execute_trade(signal)
+    return {"result": result}
 
 app = FastAPI()
 trade_engine = TradeEngine()
