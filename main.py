@@ -35,6 +35,46 @@ def start_bot_route(dep=Depends(verify_api_key)):
 def logs_route(dep=Depends(verify_api_key)):
     return get_logs()
 
+from fastapi import FastAPI, Request, HTTPException, Depends
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
+from execution_ai.smart_execution import start_bot
+from execution_ai.logs_handler import get_logs
+import os
+
+app = FastAPI()
+
+# --- RATE LIMITER SETUP ---
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# --- API KEY SETUP ---
+API_KEY = os.getenv("API_KEY", "-_k7HtLtIyxUuh2HMj5mSVSvpFUxzYYkmD8asOniC3U")
+
+def verify_api_key(request: Request):
+    client_key = request.headers.get("X-API-Key")
+    if client_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
+
+# --- PROTECTED AND LIMITED ROUTES ---
+@app.get("/status")
+@limiter.limit("10/minute")  # 10 calls per minute per IP
+def get_status(request: Request, dep=Depends(verify_api_key)):
+    return {"status": "running"}
+
+@app.post("/start-bot")
+@limiter.limit("5/minute")
+def start_bot_route(request: Request, dep=Depends(verify_api_key)):
+    return start_bot()
+
+@app.get("/logs")
+@limiter.limit("3/minute")
+def logs_route(request: Request, dep=Depends(verify_api_key)):
+    return get_logs()
+
 run_cleanup()
 
 app.add_middleware(
