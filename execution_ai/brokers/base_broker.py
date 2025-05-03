@@ -7,3 +7,7 @@ class BaseBroker:
 
     def get_account_info(self):
         raise NotImplementedError
+        
+from encryption_utils import load_decrypted_credentials
+
+BROKER_CREDENTIALS = load_decrypted_credentials()
