@@ -1,23 +1,37 @@
 from cryptography.fernet import Fernet
 import os
+from dotenv import load_dotenv
 
-# Generate a new Fernet key (only once, store it securely)
 def generate_key():
-    return Fernet.generate_key()
-
-# Save the key to a file (do only once)
-def save_key(key: bytes, filename="secret.key"):
-    with open(filename, "wb") as key_file:
+    # Generate a new encryption key and save it
+    key = Fernet.generate_key()
+    with open("secret.key", "wb") as key_file:
         key_file.write(key)
+    print("Encryption key saved to secret.key")
 
-# Load the key
-def load_key(filename="secret.key"):
-    return open(filename, "rb").read()
+def encrypt_string(plain_string):
+    # Load the encryption key
+    with open("secret.key", "rb") as key_file:
+        key = key_file.read()
+    fernet = Fernet(key)
+    
+    # Encrypt the given string
+    encrypted_string = fernet.encrypt(plain_string.encode()).decode()
+    return encrypted_string
 
-# Encrypt sensitive data
-def encrypt_message(message: str, key: bytes) -> str:
-    return Fernet(key).encrypt(message.encode()).decode()
+def save_to_env(encrypted_string):
+    # Save the encrypted string to a .env file
+    with open(".env", "w") as f:
+        f.write(f"ENCRYPTED_API_KEY={encrypted_string}")
+    print(".env file created with encrypted API key.")
 
-# Decrypt encrypted data
-def decrypt_message(token: str, key: bytes) -> str:
-    return Fernet(key).decrypt(token.encode()).decode()
+# Step 1: Generate a new key
+generate_key()
+
+# Step 2: Encrypt your API key
+api_key = "PASTE_YOUR_REAL_API_KEY_HERE"  # Replace with your real API key
+encrypted_api_key = encrypt_string(api_key)
+
+# Step 3: Save the encrypted API key to .env
+save_to_env(encrypted_api_key)
+
