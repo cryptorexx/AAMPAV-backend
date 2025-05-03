@@ -142,3 +142,9 @@ def get_logs():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=10000)
+
+from encryption_utils import load_decrypted_env_variable
+
+# Load and use the decrypted API key
+broker_api_key = load_decrypted_env_variable()
+print("Decrypted Broker API Key:", broker_api_key)  # Remove this in production
