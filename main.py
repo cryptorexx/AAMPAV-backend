@@ -8,16 +8,32 @@ from analysis_ai.market_analyzer import MarketAnalyzer
 from fastapi import Query
 from payment_processor import create_payment
 from fastapi import FastAPI, Request, HTTPException, Depends
+from execution_ai.smart_execution import start_bot
+from execution_ai.logs_handler import get_logs
 import os
 
-API_KEY = os.getenv("API_KEY", "-_k7HtLtIyxUuh2HMj5mSVSvpFUxzYYkmD8asOniC3U")
-
 app = FastAPI()
+
+# --- API KEY SETUP ---
+API_KEY = os.getenv("API_KEY", "-_k7HtLtIyxUuh2HMj5mSVSvpFUxzYYkmD8asOniC3U")
 
 def verify_api_key(request: Request):
     client_key = request.headers.get("X-API-Key")
     if client_key != API_KEY:
         raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
+
+# --- SECURE ROUTES ---
+@app.get("/status")
+def get_status(dep=Depends(verify_api_key)):
+    return {"status": "running"}
+
+@app.post("/start-bot")
+def start_bot_route(dep=Depends(verify_api_key)):
+    return start_bot()
+
+@app.get("/logs")
+def logs_route(dep=Depends(verify_api_key)):
+    return get_logs()
 
 run_cleanup()
 
