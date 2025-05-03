@@ -16,6 +16,73 @@ from analysis_ai.market_analyzer import analyze_market
 from execution_ai.trade_engine import TradeEngine
 from strategy_ai.decision_engine import generate_signal
 from strategy_ai.market_schema import MarketData
+from fastapi import FastAPI, Request, HTTPException, Depends, BackgroundTasks
+from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from fastapi.responses import JSONResponse
+from execution_ai.smart_execution import SmartExecutor
+from analysis_ai.market_analyzer import MarketAnalyzer
+from strategy_ai.market_schema import MarketData
+from execution_ai.logs_handler import get_logs
+from payment_processor import create_payment
+from fastapi import FastAPI, Request, HTTPException, Depends
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
+from execution_ai.smart_execution import start_bot
+from execution_ai.logs_handler import get_logs
+import os
+
+app = FastAPI()
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+API_KEY = os.getenv("API_KEY", "your_default_key")
+
+def verify_api_key(request: Request):
+    client_key = request.headers.get("X-API-Key")
+    if client_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
+
+smart_executor = SmartExecutor()
+market_analyzer = MarketAnalyzer()
+bot_running = False
+logs = []
+
+@app.post("/start-bot")
+@limiter.limit("5/minute")
+def start_bot_route(background_tasks: BackgroundTasks, request: Request, dep=Depends(verify_api_key)):
+    global bot_running
+    if bot_running:
+        return {"message": "Bot already running"}
+
+    try:
+        def run_bot():
+            global bot_running
+            bot_running = True
+            logs.append("Bot started.")
+            # Replace with your loop or execution logic
+            # e.g., analyze, make decisions, execute trades
+            market_data = market_analyzer.analyze_market("AAPL")
+            validated_data = MarketData(**market_data)
+            signal = smart_executor.decision_engine.generate_signal(validated_data)
+            result = smart_executor.safe_execute("AAPL", signal["action"], 10, 150.0)
+            logs.append(result)
+
+        background_tasks.add_task(run_bot)
+        return {"message": "Bot started in background"}
+    
+    except Exception as e:
+        return {"error": f"Failed to start bot: {str(e)}"}
+
+@app.get("/logs")
+@limiter.limit("3/minute")
+def logs_route(request: Request, dep=Depends(verify_api_key)):
+    return {"logs": logs or ["Bot is not running. No activity to show."]}
 
 @app.post("/start-bot")
 def start_bot():
@@ -66,15 +133,6 @@ def start_bot_route(dep=Depends(verify_api_key)):
 @app.get("/logs")
 def logs_route(dep=Depends(verify_api_key)):
     return get_logs()
-
-from fastapi import FastAPI, Request, HTTPException, Depends
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from fastapi.responses import JSONResponse
-from slowapi.errors import RateLimitExceeded
-from execution_ai.smart_execution import start_bot
-from execution_ai.logs_handler import get_logs
-import os
 
 app = FastAPI()
 
