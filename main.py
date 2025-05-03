@@ -1,23 +1,21 @@
-# main.py
-
+import os
 from fastapi import FastAPI, Request, HTTPException, Depends, BackgroundTasks, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from analysis_ai.market_analyzer import MarketAnalyzer
-from execution_ai.smart_execution import SmartExecutor
-from execution_ai.trade_engine import TradeEngine
-from execution_ai.logs_handler import get_logs
-from strategy_ai.decision_engine import generate_signal
+
 from strategy_ai.market_schema import MarketData
-from system_maintenance import run_cleanup
+from execution_ai.smart_execution import SmartExecutor
+from analysis_ai.market_analyzer import MarketAnalyzer
+from strategy_ai.decision_engine import generate_signal
+from execution_ai.trade_engine import TradeEngine
+from execution_ai.logs_handler import get_logs as fetch_logs
 from payment_processor import create_payment
 from encryption_utils import load_decrypted_env_variable
-import os
+from system_maintenance import run_cleanup
 
-# --- App Setup ---
 app = FastAPI()
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
