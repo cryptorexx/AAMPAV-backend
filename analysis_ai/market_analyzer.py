@@ -1,4 +1,5 @@
 import random
+from datetime import datetime, timedelta
 
 class MarketAnalyzer:
     def __init__(self):
@@ -74,3 +75,6 @@ def analyze_market_conditions():
         "volatility": "Moderate",
         "news_signals": news_signals
     }
+def cleanup_old_signals(news_signals, max_age_minutes=60):
+    cutoff = datetime.utcnow() - timedelta(minutes=max_age_minutes)
+    return [s for s in news_signals if s["timestamp"] >= cutoff]
