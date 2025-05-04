@@ -4,6 +4,7 @@ import random
 from analysis_ai.market_analyzer import MarketAnalyzer
 from portfolio_manager import PortfolioManager
 from execution_ai.risk_controller import RiskController
+from analysis_ai.market_analyzer import analyze_market_conditions
 
 class DecisionEngine:
     def __init__(self):
