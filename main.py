@@ -15,6 +15,7 @@ from execution_ai.logs_handler import get_logs as fetch_logs
 from payment_processor import create_payment
 from encryption_utils import load_decrypted_env_variable
 from system_maintenance import run_cleanup
+from payment_processor.split_manager import WalletManager
 
 app = FastAPI()
 limiter = Limiter(key_func=get_remote_address)
