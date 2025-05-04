@@ -81,6 +81,37 @@ def stop_bot(request: Request, dep=Depends(verify_api_key)):
         logs.append("Bot stopped by user.")
         return {"message": "Bot stopped"}
     return {"message": "Bot already stopped"}
+    from fastapi import Body
+
+@app.post("/analyze")
+@limiter.limit("10/minute")
+async def analyze(request: Request, dep=Depends(verify_api_key)):
+    data = await request.json()
+    symbol = data.get("symbol")
+    if not symbol:
+        raise HTTPException(status_code=400, detail="Missing symbol")
+    analysis = market_analyzer.analyze_market(symbol)
+    return {"analysis": analysis}
+
+@app.post("/trade")
+@limiter.limit("5/minute")
+async def trade(request: Request, dep=Depends(verify_api_key)):
+    data = await request.json()
+    symbol = data.get("symbol")
+    action = data.get("action")
+    quantity = data.get("quantity")
+    price = data.get("price")
+
+    if not all([symbol, action, quantity, price]):
+        raise HTTPException(status_code=400, detail="Incomplete trade data")
+
+    result = smart_executor.safe_execute(symbol, action, quantity, price)
+    return {"result": result}
+
+@app.post("/pay")
+@limiter.limit("5/minute")
+def generate_payment(amount: float = Query(...), dep=Depends(verify_api_key)):
+    return create_payment(amount)
 
 @app.get("/logs")
 @limiter.limit("3/minute")
