@@ -75,6 +75,11 @@ def analyze_market_conditions():
         "volatility": "Moderate",
         "news_signals": news_signals
     }
+    
+# After fetching news_signals from your source
+news_signals = generate_news_signals_from_api()  # Or however you get them
+news_signals = cleanup_old_signals(news_signals)
+
 def cleanup_old_signals(news_signals, max_age_minutes=60):
     cutoff = datetime.utcnow() - timedelta(minutes=max_age_minutes)
     return [s for s in news_signals if s["timestamp"] >= cutoff]
