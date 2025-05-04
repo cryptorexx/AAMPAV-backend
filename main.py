@@ -202,6 +202,17 @@ async def analyze(request: Request):
 @app.post("/pay")
 def generate_payment(amount: float = Query(...)):
     return create_payment(amount)
+    
+@app.post("/receive-royalty")
+@limiter.limit("5/minute")
+def receive_royalty(amount: float = Query(...), dep=Depends(verify_api_key)):
+    result = wallet_manager.split_and_store(amount)
+    return {"message": "Royalty received and split", "result": result}
+    
+@app.get("/wallets")
+@limiter.limit("5/minute")
+def get_wallets(dep=Depends(verify_api_key)):
+    return wallet_manager.get_wallets()
 
 # --- Startup Tasks ---
 run_cleanup()
