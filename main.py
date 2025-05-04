@@ -28,6 +28,64 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+API_KEY = os.getenv("API_KEY", "-_k7HtLtIyxUuh2HMj5mSVSvpFUxzYYkmD8asOniC3U")
+broker_api_key = load_decrypted_env_variable()
+
+smart_executor = SmartExecutor()
+market_analyzer = MarketAnalyzer()
+trade_engine = TradeEngine()
+bot_running = False
+logs = []
+
+def verify_api_key(request: Request):
+    client_key = request.headers.get("X-API-Key")
+    if client_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
+
+@app.get("/status")
+@limiter.limit("10/minute")
+def get_status(request: Request, dep=Depends(verify_api_key)):
+    return {"status": "Running" if bot_running else "Stopped"}
+
+@app.post("/start-bot")
+@limiter.limit("5/minute")
+def start_bot_route(background_tasks: BackgroundTasks, request: Request, dep=Depends(verify_api_key)):
+    global bot_running
+    if bot_running:
+        return {"message": "Bot already running"}
+
+    def run_bot():
+        global bot_running
+        try:
+            bot_running = True
+            logs.append("Bot started.")
+            market_data = market_analyzer.analyze_market("AAPL")
+            validated = MarketData(**market_data)
+            signal = generate_signal(validated)
+            result = smart_executor.safe_execute("AAPL", signal["action"], 10, 150.0)
+            logs.append(result)
+        except Exception as e:
+            logs.append(f"Bot error: {str(e)}")
+        finally:
+            bot_running = False
+
+    background_tasks.add_task(run_bot)
+    return {"message": "Bot started in background"}
+
+@app.post("/stop-bot")
+@limiter.limit("3/minute")
+def stop_bot(request: Request, dep=Depends(verify_api_key)):
+    global bot_running
+    if bot_running:
+        bot_running = False
+        logs.append("Bot stopped by user.")
+        return {"message": "Bot stopped"}
+    return {"message": "Bot already stopped"}
+
+@app.get("/logs")
+@limiter.limit("3/minute")
+def logs_route(request: Request, dep=Depends(verify_api_key)):
+    return {"logs": logs or ["No activity recorded."]}
 
 # --- Global Variables ---
 API_KEY = os.getenv("API_KEY", "your_default_key")
