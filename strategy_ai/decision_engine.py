@@ -46,3 +46,35 @@ def generate_signal(data: MarketData):
         return {"action": "sell"}
     else:
         return {"action": "hold"}
+        
+def generate_trade_decision(asset_data):
+    market_analysis = analyze_market_conditions()
+    news_signals = market_analysis.get("news_signals", [])
+
+    decisions = []
+
+    for asset in asset_data:
+        symbol = asset.get("symbol")
+        score = 0.5  # Neutral baseline score
+
+        # Match relevant news signals
+        relevant_signals = [
+            signal for signal in news_signals if signal["symbol"] == symbol or signal["symbol"] == "GLOBAL"
+        ]
+
+        for signal in relevant_signals:
+            score += signal["impact_score"] * 0.2  # Bias the decision upward
+
+        # Clamp score between 0 and 1
+        score = min(max(score, 0), 1)
+
+        action = "BUY" if score > 0.6 else "HOLD" if score > 0.4 else "SELL"
+
+        decisions.append({
+            "symbol": symbol,
+            "action": action,
+            "confidence": round(score, 2),
+            "news_bias": len(relevant_signals),
+        })
+
+    return decisions
