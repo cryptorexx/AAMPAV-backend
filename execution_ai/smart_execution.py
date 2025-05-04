@@ -46,3 +46,4 @@ class SmartExecutor:
             "details": trade_result,
             "stealth_used": stealth_result
         }
+wallet_manager = WalletManager()
