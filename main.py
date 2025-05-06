@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, Request, HTTPException, Depends, BackgroundTasks, Query
+from fastapi import FastAPI, Request, HTTPException, Depends, BackgroundTasks, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -54,7 +54,24 @@ def start_bot_route(background_tasks: BackgroundTasks, request: Request, dep=Dep
     global bot_running
     if bot_running:
         return {"message": "Bot already running"}
+        
+@app.post("/deposit")
+def deposit_funds(amount: float = Body(..., embed=True)):
+    if amount <= 0:
+        return {"error": "Deposit must be greater than zero."}
 
+    # Deposit into collective wallet
+    wallet_manager.deposit("collective_wallet", amount)
+
+    # Split 50/50
+    split_amount = amount / 2
+    wallet_manager.withdraw("collective_wallet", split_amount)
+    wallet_manager.deposit("trading_wallet", split_amount)
+
+    return {
+        "message": f"${amount} deposited. ${split_amount} sent to trading_wallet. ${split_amount} kept in collective_wallet.",
+        "wallets": wallet_manager.get_balances()
+    }
     def run_bot():
         global bot_running
         try:
