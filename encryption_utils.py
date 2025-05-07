@@ -69,3 +69,9 @@ def load_decrypted_credentials(env_path=".env", key_path="secret.key"):
                 except Exception:
                     creds[k] = None  # Skip malformed lines
     return creds
+    
+def load_or_generate_key():
+    # your key loading/generation logic here
+    pass
+
+__all__ = ['load_or_generate_key', 'encrypt_data', 'decrypt_data']
