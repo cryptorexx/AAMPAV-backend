@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from cryptography.fernet import Fernet
 from execution_ai.brokers.alpaca_broker import AlpacaBroker
 from execution_ai.brokers.base_broker import BaseBroker
-from encryption_utils import load_or_generate_key, encrypt_data, decrypt_data
+from ...encryption_utils import load_or_generate_key, encrypt_data, decrypt_data
 
 load_dotenv()  # Load from .env
 
