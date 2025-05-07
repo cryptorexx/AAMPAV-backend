@@ -1,5 +1,8 @@
 fastapi
 uvicorn
+requests
+pandas
+yfinance
 paypalrestsdk
 slowapi
 cryptography
