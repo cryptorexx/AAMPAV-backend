@@ -6,3 +6,4 @@ yfinance
 paypalrestsdk
 slowapi
 cryptography
+python-dotenv
