@@ -17,6 +17,8 @@ from encryption_utils import load_decrypted_env_variable
 from system_maintenance import run_cleanup
 from payment_processor.split_manager import WalletManager
 
+wallet_manager = WalletManager()
+
 app = FastAPI()
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
