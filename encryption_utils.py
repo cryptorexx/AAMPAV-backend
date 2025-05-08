@@ -70,8 +70,16 @@ def load_decrypted_credentials(env_path=".env", key_path="secret.key"):
                     creds[k] = None  # Skip malformed lines
     return creds
     
-def load_or_generate_key():
-    # your key loading/generation logic here
-    pass
+KEY_FILE = "secret.key"
 
+def load_or_generate_key():
+    if os.path.exists(KEY_FILE):
+        with open(KEY_FILE, "rb") as f:
+            return f.read()
+    else:
+        key = Fernet.generate_key()
+        with open(KEY_FILE, "wb") as f:
+            f.write(key)
+        return key
+        
 __all__ = ['load_or_generate_key', 'encrypt_data', 'decrypt_data']
