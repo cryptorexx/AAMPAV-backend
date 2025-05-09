@@ -38,10 +38,8 @@ class StealthBehaviors:
             print()  # newline
 
     def apply_stealth(symbol, side, quantity, price):
-    # Simulate random delay to mimic human behavior
     delay = random.uniform(1.0, 3.5)
 
-    # Slight randomization of quantity and price (within 1-3%)
     fuzz_factor = random.uniform(0.01, 0.03)
     quantity_variation = int(quantity * (1 + random.choice([-1, 1]) * fuzz_factor))
     price_variation = round(price * (1 + random.choice([-1, 1]) * fuzz_factor), 2)
