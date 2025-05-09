@@ -1,38 +1,20 @@
+# analysis_ai/market_analyzer.py
+
 import random
 from datetime import datetime, timedelta
 
-class MarketAnalyzer:
-    def __init__(self):
-        self.sentiment = "neutral"
-
-    news_signals = ...
-    def generate_news_signals_from_api():
+def generate_news_signals_from_api():
     # Placeholder logic — replace with your actual API call
     return [
-        {"symbol": "AAPL", "signal": "positive"},
-        {"symbol": "TSLA", "signal": "negative"}
+        {"symbol": "AAPL", "signal": "positive", "timestamp": datetime.utcnow()},
+        {"symbol": "TSLA", "signal": "negative", "timestamp": datetime.utcnow()}
     ]
 
-    def analyze_market(self, symbol):
-        # Placeholder logic: simulate basic analysis
-        trend = random.choice(["bullish", "bearish", "neutral"])
-        confidence = round(random.uniform(0.5, 1.0), 2)
-        
-        self.sentiment = trend
-        return {
-            "symbol": symbol,
-            "trend": trend,
-            "confidence": confidence
-        }
-    def analyze_market():
-        # TODO: Real analysis logic
-        return {"trend": "up", "volatility": 0.25}
-        
-import random
-from datetime import datetime
+def cleanup_old_signals(news_signals, max_age_minutes=60):
+    cutoff = datetime.utcnow() - timedelta(minutes=max_age_minutes)
+    return [s for s in news_signals if s.get("timestamp") and s["timestamp"] >= cutoff]
 
 def fetch_news():
-    # Simulated geopolitical headlines (replace with NewsAPI/GDELT later)
     sample_headlines = [
         {"title": "China cuts interest rates amid global slowdown", "source": "Reuters"},
         {"title": "Oil prices surge after Middle East tensions escalate", "source": "Bloomberg"},
@@ -44,10 +26,10 @@ def fetch_news():
     geopolitical_signals = []
 
     for headline in sample_headlines:
-        impact_score = round(random.uniform(0.5, 1.0), 2)  # Simulated impact
+        impact_score = round(random.uniform(0.5, 1.0), 2)
         symbol = infer_symbol_from_headline(headline["title"])
         geopolitical_signals.append({
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow(),
             "title": headline["title"],
             "source": headline["source"],
             "impact_score": impact_score,
@@ -59,35 +41,37 @@ def fetch_news():
 def infer_symbol_from_headline(title):
     title = title.lower()
     if "oil" in title or "gas" in title:
-        return "XOM"  # ExxonMobil
+        return "XOM"
     elif "tech" in title or "taiwan" in title:
-        return "AAPL"  # Apple
+        return "AAPL"
     elif "china" in title:
-        return "BABA"  # Alibaba
+        return "BABA"
     elif "fed" in title or "interest" in title:
-        return "^GSPC"  # S&P 500
+        return "^GSPC"
     elif "russia" in title:
-        return "GAZP"  # Gazprom (or oil ETF)
-    else:
-        return "GLOBAL"
+        return "GAZP"
+    return "GLOBAL"
 
 def analyze_market_conditions():
-    # Existing market data analysis (if any)
-    ...
-    
-    # New: Fetch geopolitical news
-    news_signals = fetch_news()
-    
+    news_signals = generate_news_signals_from_api()
+    news_signals = cleanup_old_signals(news_signals)
+
     return {
         "market_trends": "Bullish",
         "volatility": "Moderate",
         "news_signals": news_signals
     }
-    
-# After fetching news_signals from your source
-news_signals = generate_news_signals_from_api()  # Or however you get them
-news_signals = cleanup_old_signals(news_signals)
 
-def cleanup_old_signals(news_signals, max_age_minutes=60):
-    cutoff = datetime.utcnow() - timedelta(minutes=max_age_minutes)
-    return [s for s in news_signals if s["timestamp"] >= cutoff]
+class MarketAnalyzer:
+    def __init__(self):
+        self.sentiment = "neutral"
+
+    def analyze_market(self, symbol):
+        trend = random.choice(["bullish", "bearish", "neutral"])
+        confidence = round(random.uniform(0.5, 1.0), 2)
+        self.sentiment = trend
+        return {
+            "symbol": symbol,
+            "trend": trend,
+            "confidence": confidence
+        }
