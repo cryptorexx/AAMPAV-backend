@@ -5,6 +5,7 @@ class MarketAnalyzer:
     def __init__(self):
         self.sentiment = "neutral"
 
+    news_signals = ...
     def generate_news_signals_from_api():
     # Placeholder logic — replace with your actual API call
     return [
