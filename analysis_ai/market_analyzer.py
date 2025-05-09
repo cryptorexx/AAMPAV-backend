@@ -5,6 +5,13 @@ class MarketAnalyzer:
     def __init__(self):
         self.sentiment = "neutral"
 
+    def generate_news_signals_from_api():
+    # Placeholder logic — replace with your actual API call
+    return [
+        {"symbol": "AAPL", "signal": "positive"},
+        {"symbol": "TSLA", "signal": "negative"}
+    ]
+
     def analyze_market(self, symbol):
         # Placeholder logic: simulate basic analysis
         trend = random.choice(["bullish", "bearish", "neutral"])
