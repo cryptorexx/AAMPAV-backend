@@ -4,6 +4,14 @@ from cryptography.fernet import Fernet
 from execution_ai.brokers.alpaca_broker import AlpacaBroker
 from execution_ai.brokers.base_broker import BaseBroker
 from encryption_utils import load_or_generate_key, encrypt_data, decrypt_data
+from .alpaca_broker import AlpacaBroker
+
+class BrokerInterface:
+    def __init__(self):
+        self.broker = AlpacaBroker()  # or any other integrated broker
+
+    def place_order(self, symbol, qty, side, type="market", time_in_force="gtc"):
+        return self.broker.place_order(symbol, qty, side, type, time_in_force)
 
 load_dotenv()  # Load from .env
 
