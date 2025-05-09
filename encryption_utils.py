@@ -73,5 +73,13 @@ def load_or_generate_key():
         with open(KEY_FILE, "wb") as f:
             f.write(key)
         return key
-        
+
+def encrypt_data(data, key=None):
+    key = key or load_or_generate_key()
+    return Fernet(key).encrypt(data.encode()).decode()
+
+def decrypt_data(token, key=None):
+    key = key or load_or_generate_key()
+    return Fernet(key).decrypt(token.encode()).decode()
+
 __all__ = ['load_or_generate_key', 'encrypt_data', 'decrypt_data']
