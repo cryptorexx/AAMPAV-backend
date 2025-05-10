@@ -1,5 +1,3 @@
-# payment_processor/split_manager.py
-
 class WalletManager:
     def __init__(self):
         self.trading_wallet = 0.0
