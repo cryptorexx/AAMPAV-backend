@@ -1,6 +1,7 @@
 # execution_ai/smart_execution.py
 
 import time
+from payment_ai.split_manager import WalletManager
 from execution_ai.risk_controller import RiskController
 from execution_ai.brokers.broker_interface import BrokerInterface
 from strategy_ai.decision_engine import DecisionEngine
