@@ -1,4 +1,6 @@
 import os
+from cryptography.fernet import Fernet
+from encryption_utils import load_decrypted_env_variable
 from fastapi import FastAPI, Request, HTTPException, Depends, BackgroundTasks, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -229,6 +231,21 @@ def get_wallets(dep=Depends(verify_api_key)):
 
 # --- Startup Tasks ---
 run_cleanup()
+
+def load_decrypted_env_variable(env_file_path=".env", key_file_path="secret.key"):
+    with open(key_file_path, 'rb') as key_file:
+        secret_key = key_file.read()
+
+    fernet = Fernet(secret_key)
+
+    with open(env_file_path, 'r') as env_file:
+        for line in env_file:
+            if line.startswith("ENCRYPTED_API_KEY="):
+                encrypted_value = line.strip().split("=", 1)[1]
+                decrypted_value = fernet.decrypt(encrypted_value.encode()).decode()
+                return decrypted_value
+
+    raise ValueError("ENCRYPTED_API_KEY not found in .env")
 
 # --- Optional Dev Server ---
 if __name__ == "__main__":
