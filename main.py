@@ -10,7 +10,6 @@ from strategy_ai.market_schema import MarketData
 from execution_ai.smart_execution import SmartExecutor
 from analysis_ai.market_analyzer import MarketAnalyzer
 from strategy_ai.decision_engine import generate_signal
-from payment_ai import create_payment
 from encryption_utils import load_decrypted_env_variable
 from system_maintenance import run_cleanup
 from payment_ai.split_manager import create_payment
