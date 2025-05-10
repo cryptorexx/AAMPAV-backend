@@ -13,7 +13,7 @@ from strategy_ai.decision_engine import generate_signal
 from payment_ai import create_payment
 from encryption_utils import load_decrypted_env_variable
 from system_maintenance import run_cleanup
-from payment_processor.split_manager import WalletManager
+from payment_ai.split_manager import WalletManager
 
 wallet_manager = WalletManager()
 
