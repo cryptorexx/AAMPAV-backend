@@ -10,7 +10,6 @@ from strategy_ai.market_schema import MarketData
 from execution_ai.smart_execution import SmartExecutor
 from analysis_ai.market_analyzer import MarketAnalyzer
 from strategy_ai.decision_engine import generate_signal
-from execution_ai.trade_engine import TradeEngine
 from execution_ai.logs_handler import get_logs as fetch_logs
 from payment_processor import create_payment
 from encryption_utils import load_decrypted_env_variable
@@ -36,7 +35,6 @@ broker_api_key = load_decrypted_env_variable()
 
 smart_executor = SmartExecutor()
 market_analyzer = MarketAnalyzer()
-trade_engine = TradeEngine()
 bot_running = False
 logs = []
 
@@ -143,7 +141,6 @@ API_KEY = os.getenv("API_KEY", "your_default_key")
 broker_api_key = load_decrypted_env_variable()
 smart_executor = SmartExecutor()
 market_analyzer = MarketAnalyzer()
-trade_engine = TradeEngine()
 bot_running = False
 logs = []
 
