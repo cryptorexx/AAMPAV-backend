@@ -5,7 +5,7 @@ from execution_ai.brokers.alpaca_broker import AlpacaBroker
 from execution_ai.brokers.base_broker import BaseBroker
 from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
 from encryption_utils import load_or_generate_key, encrypt_data, decrypt_data
-from .alpaca_broker import AlpacaBroker
+load_dotenv()  # Load from .env
 
 class BrokerInterface:
     def __init__(self):
@@ -23,7 +23,6 @@ class BrokerInterface:
             "status": "filled",
             "broker": "auto-placeholder"
         }
-load_dotenv()  # Load from .env
 
 # Load encryption key
 key = load_or_generate_key()
