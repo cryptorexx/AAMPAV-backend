@@ -3,15 +3,17 @@ from dotenv import load_dotenv
 from cryptography.fernet import Fernet
 from execution_ai.brokers.alpaca_broker import AlpacaBroker
 from execution_ai.brokers.base_broker import BaseBroker
+from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
 from encryption_utils import load_or_generate_key, encrypt_data, decrypt_data
 from .alpaca_broker import AlpacaBroker
 
 class BrokerInterface:
     def __init__(self):
-        # Placeholder for automated broker integration
-        self.api_key = "auto"
-        self.status = "waiting_for_auto_auth"
-
+        self.handler = AutoBrokerHandler()
+        result = self.handler.scan_and_select()
+        self.api_key = self.handler.register_with_broker()["api_key"]
+        self.selected_broker = result["selected"]
+        
     def place_order(self, symbol, qty, side, type="market", time_in_force="gtc"):
         print(f"[AUTO-BROKER] Placing {side.upper()} order for {qty} {symbol} (simulated)")
         return {
