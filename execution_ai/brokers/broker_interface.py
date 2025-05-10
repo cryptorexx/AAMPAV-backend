@@ -8,11 +8,19 @@ from .alpaca_broker import AlpacaBroker
 
 class BrokerInterface:
     def __init__(self):
-        self.broker = AlpacaBroker()  # or any other integrated broker
+        # Placeholder for automated broker integration
+        self.api_key = "auto"
+        self.status = "waiting_for_auto_auth"
 
     def place_order(self, symbol, qty, side, type="market", time_in_force="gtc"):
-        return self.broker.place_order(symbol, qty, side, type, time_in_force)
-
+        print(f"[AUTO-BROKER] Placing {side.upper()} order for {qty} {symbol} (simulated)")
+        return {
+            "symbol": symbol,
+            "side": side,
+            "qty": qty,
+            "status": "filled",
+            "broker": "auto-placeholder"
+        }
 load_dotenv()  # Load from .env
 
 # Load encryption key
