@@ -125,7 +125,7 @@ async def trade(request: Request, dep=Depends(verify_api_key)):
 
 @app.post("/pay")
 @limiter.limit("5/minute")
-def generate_payment(amount: float = Query(...), dep=Depends(verify_api_key)):
+def generate_payment(request: Request, amount: float = Query(...)):
     return create_payment(amount)
 
 @app.get("/logs")
