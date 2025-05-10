@@ -10,7 +10,6 @@ from strategy_ai.market_schema import MarketData
 from execution_ai.smart_execution import SmartExecutor
 from analysis_ai.market_analyzer import MarketAnalyzer
 from strategy_ai.decision_engine import generate_signal
-from encryption_utils import load_decrypted_env_variable
 from system_maintenance import run_cleanup
 from payment_ai.split_manager import create_payment
 from payment_ai.split_manager import WalletManager
@@ -30,7 +29,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 API_KEY = os.getenv("API_KEY", "-_k7HtLtIyxUuh2HMj5mSVSvpFUxzYYkmD8asOniC3U")
-broker_api_key = load_decrypted_env_variable()
 
 smart_executor = SmartExecutor()
 market_analyzer = MarketAnalyzer()
