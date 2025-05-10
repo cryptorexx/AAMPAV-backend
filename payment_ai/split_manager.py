@@ -29,3 +29,13 @@ class WalletManager:
         self.trading_wallet = 0.0
         self.profit_wallet = 0.0
         return self.get_wallets()
+
+
+# ✅ Add this function
+def create_payment(amount):
+    # Simulate a payment creation
+    return {
+        "payment_url": f"https://dummy-payment.com/pay?amount={amount}",
+        "amount": amount,
+        "status": "pending"
+    }
