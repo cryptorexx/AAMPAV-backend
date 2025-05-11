@@ -2,6 +2,22 @@
 
 from execution_ai.brokers.alpaca_broker import AlpacaBroker
 from execution_ai.brokers.base_broker import BaseBroker
+from execution_ai.brokers.universal_broker import UniversalBroker
+
+class AutoBrokerHandler:
+    def __init__(self):
+        self.supported = ["alpaca", "binance", "fxcm"]  # Expand this list freely
+
+    def scan_and_select(self):
+        for broker in self.supported:
+            instance = UniversalBroker(broker)
+            if instance.connected:
+                return {"selected": broker, "instance": instance}
+        return {"selected": None, "instance": None}
+
+    def register_with_broker(self):
+        result = self.scan_and_select()
+        return {"broker": result["selected"], "api_key": result["instance"].api_key if result["instance"] else None}
 
 class AutoBrokerHandler:
     def __init__(self):
