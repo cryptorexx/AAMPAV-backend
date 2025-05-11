@@ -3,6 +3,25 @@
 from execution_ai.brokers.alpaca_broker import AlpacaBroker
 from execution_ai.brokers.base_broker import BaseBroker
 from execution_ai.brokers.universal_broker import UniversalBroker
+from execution_ai.brokers.broker_interface import load_brokers, save_brokers
+
+class AutoBrokerHandler:
+    def scan_and_select(self):
+        brokers = load_brokers()
+        if not brokers:
+            raise Exception("No brokers found. Ensure brokers.json exists with entries.")
+        return {
+            "selected": brokers[0]["name"],
+            "api_key": brokers[0]["api_key"],
+            "api_secret": brokers[0]["api_secret"]
+        }
+
+    def register_with_broker(self):
+        broker = self.scan_and_select()
+        return {
+            "broker": broker["selected"],
+            "api_key": broker["api_key"]
+        }
 
 class AutoBrokerHandler:
     def __init__(self):
