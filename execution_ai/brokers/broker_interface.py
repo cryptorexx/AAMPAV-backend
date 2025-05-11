@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 from cryptography.fernet import Fernet
 from execution_ai.brokers.alpaca_broker import AlpacaBroker
@@ -8,6 +9,10 @@ from encryption_utils import load_or_generate_key, encrypt_data, decrypt_data
 load_dotenv()  # Load from .env
 from config import USE_SIMULATED_BROKER
 from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
+
+def load_brokers(file_path="config/brokers.json"):
+    with open(file_path, "r") as f:
+        return json.load(f)
 
 class BrokerInterface:
     def __init__(self):
