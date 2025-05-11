@@ -1,6 +1,19 @@
 import os
 import requests
 from cryptography.fernet import Fernet
+from pathlib import Path
+import json
+
+BROKER_JSON_PATH = Path(__file__).resolve().parent / "brokers.json"
+
+def encrypt_broker_credentials(key, fernet):
+    with open(BROKER_JSON_PATH, "r") as file:
+        brokers = json.load(file)
+    for broker in brokers:
+        broker["api_key"] = encrypt_data(broker["api_key"], fernet)
+        broker["api_secret"] = encrypt_data(broker["api_secret"], fernet)
+    with open(BROKER_JSON_PATH, "w") as file:
+        json.dump(brokers, file, indent=2)
 
 def load_key(key_path="secret.key"):
     if not os.path.exists(key_path):
