@@ -1,7 +1,17 @@
+import paypalrestsdk
+import logging
+
 class WalletManager:
     def __init__(self):
         self.trading_wallet = 0.0
         self.profit_wallet = 0.0
+
+        # PayPal configuration
+        paypalrestsdk.configure({
+            "mode": "sandbox",  # Change to "live" in production
+            "client_id": "YOUR_PAYPAL_CLIENT_ID",
+            "client_secret": "YOUR_PAYPAL_CLIENT_SECRET"
+        })
 
     def split_and_store(self, amount: float) -> dict:
         trading_part = round(amount * 0.5, 2)
@@ -30,12 +40,35 @@ class WalletManager:
         self.profit_wallet = 0.0
         return self.get_wallets()
 
+    def create_paypal_payment(self, amount: float, currency: str = "USD") -> dict:
+        payment = paypalrestsdk.Payment({
+            "intent": "sale",
+            "payer": {
+                "payment_method": "paypal"
+            },
+            "redirect_urls": {
+                "return_url": "https://your-frontend-domain.com/success",
+                "cancel_url": "https://your-frontend-domain.com/cancel"
+            },
+            "transactions": [{
+                "amount": {
+                    "total": f"{amount:.2f}",
+                    "currency": currency
+                },
+                "description": "Automated AI Trading Bot Payment"
+            }]
+        })
 
-# ✅ Add this function
-def create_payment(amount):
-    # Simulate a payment creation
-    return {
-        "payment_url": f"https://dummy-payment.com/pay?amount={amount}",
-        "amount": amount,
-        "status": "pending"
-    }
+        if payment.create():
+            approval_url = next((link.href for link in payment.links if link.rel == "approval_url"), None)
+            return {
+                "status": "created",
+                "payment_id": payment.id,
+                "approval_url": approval_url
+            }
+        else:
+            logging.error(payment.error)
+            return {
+                "status": "failed",
+                "error": payment.error
+            }
