@@ -1,21 +1,20 @@
-import os
-import requests
-from execution_ai.brokers.base_broker import BaseBroker
+# execution_ai/brokers/alpaca_broker.py
 
-class AlpacaBroker(BaseBroker):
+import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class AlpacaBroker:
     def __init__(self):
-        self.api_key = os.getenv("ALPACA_API_KEY")
-        self.secret_key = os.getenv("ALPACA_SECRET_KEY")
+        self.api_key = os.getenv("ALPACA_API_KEY", "demo")
+        self.api_secret = os.getenv("ALPACA_API_SECRET", "demo")
         self.base_url = "https://paper-api.alpaca.markets"
         self.headers = {
             "APCA-API-KEY-ID": self.api_key,
-            "APCA-API-SECRET-KEY": self.secret_key
+            "APCA-API-SECRET-KEY": self.api_secret
         }
-
-    def connect(self):
-        url = f"{self.base_url}/v2/account"
-        response = requests.get(url, headers=self.headers)
-        return response.ok
 
     def place_order(self, symbol, qty, side, type="market", time_in_force="gtc"):
         url = f"{self.base_url}/v2/orders"
@@ -27,11 +26,16 @@ class AlpacaBroker(BaseBroker):
             "time_in_force": time_in_force
         }
         response = requests.post(url, json=order_data, headers=self.headers)
-        if response.status_code in (200, 201):
+        if response.status_code in [200, 201]:
             return response.json()
-        return {"error": response.text}
+        else:
+            return {"error": response.text}
 
-    def get_account_info(self):
-        url = f"{self.base_url}/v2/account"
-        response = requests.get(url, headers=self.headers)
-        return response.json()
+    def ping(self):
+        """Check if broker API is reachable."""
+        try:
+            url = f"{self.base_url}/v2/account"
+            response = requests.get(url, headers=self.headers)
+            return response.status_code == 200
+        except Exception:
+            return False
