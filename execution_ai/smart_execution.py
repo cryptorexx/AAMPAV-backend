@@ -25,7 +25,7 @@ class SmartExecutor:
             }
 
         # Apply stealth behavior (random delay, quantity fuzzing, etc.)
-        stealth_result = apply_stealth(symbol, side, quantity, price)
+        stealth_result = apply_stealth(symbol, side, quantity, price, self.broker.selected_broker)
         quantity = stealth_result["quantity"]
         price = stealth_result["price"]
         delay = stealth_result["delay"]
