@@ -9,6 +9,19 @@ from encryption_utils import load_or_generate_key, encrypt_data, decrypt_data
 load_dotenv()  # Load from .env
 from config import USE_SIMULATED_BROKER
 from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
+from pathlib import Path
+
+BROKER_JSON_PATH = Path(__file__).resolve().parent.parent / "brokers.json"
+
+def load_brokers():
+    if BROKER_JSON_PATH.exists():
+        with open(BROKER_JSON_PATH, "r") as file:
+            return json.load(file)
+    return []
+
+def save_brokers(brokers):
+    with open(BROKER_JSON_PATH, "w") as file:
+        json.dump(brokers, file, indent=2)
 
 def load_brokers(file_path="config/brokers.json"):
     with open(file_path, "r") as f:
