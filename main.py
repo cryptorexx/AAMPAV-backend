@@ -1,4 +1,6 @@
 import os
+from json_broker_loader import fetch_and_apply_credentials
+fetch_and_apply_credentials()
 from cryptography.fernet import Fernet
 from encryption_utils import load_decrypted_env_variable
 from encryption_utils import auto_initialize_env_live
@@ -8,8 +10,6 @@ from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from json_broker_loader import fetch_and_apply_credentials
-fetch_and_apply_credentials()
 
 from strategy_ai.market_schema import MarketData
 from execution_ai.smart_execution import SmartExecutor
