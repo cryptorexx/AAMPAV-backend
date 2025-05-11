@@ -42,16 +42,6 @@ def verify_api_key(request: Request):
     if client_key != API_KEY:
         raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
 
-    @app.get("/test-broker")
-def test_broker(dep=Depends(verify_api_key)):
-    from execution_ai.brokers.broker_interface import BrokerInterface
-    broker = BrokerInterface()
-    return {
-        "selected_broker": broker.selected_broker,
-        "api_key": broker.api_key,
-        "ping_success": broker.handler.get_broker(broker.selected_broker).ping()
-    }
-
 @app.get("/status")
 @limiter.limit("10/minute")
 def get_status(request: Request, dep=Depends(verify_api_key)):
