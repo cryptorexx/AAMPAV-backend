@@ -7,6 +7,19 @@ from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
 from encryption_utils import load_or_generate_key, encrypt_data, decrypt_data
 load_dotenv()  # Load from .env
 from config import USE_SIMULATED_BROKER
+from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
+
+class BrokerInterface:
+    def __init__(self):
+        self.handler = AutoBrokerHandler()
+        result = self.handler.scan_and_select()
+        self.broker_name = result["selected"]
+        self.broker_instance = result["instance"]
+
+    def place_order(self, symbol, qty, side):
+        if not self.broker_instance:
+            return {"error": "No available broker"}
+        return self.broker_instance.place_order(symbol, qty, side)
 
 class BrokerInterface:
     def __init__(self):
