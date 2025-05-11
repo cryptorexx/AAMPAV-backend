@@ -13,11 +13,9 @@ from pathlib import Path
 
 BROKER_JSON_PATH = Path(__file__).resolve().parent.parent / "brokers.json"
 
-def load_brokers():
-    if BROKER_JSON_PATH.exists():
-        with open(BROKER_JSON_PATH, "r") as file:
-            return json.load(file)
-    return []
+def load_brokers(file_path="config/brokers.json"):
+    with open(file_path, "r") as f:
+        return json.load(f)
 
 def save_brokers(brokers):
     with open(BROKER_JSON_PATH, "w") as file:
