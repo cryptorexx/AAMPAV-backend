@@ -1,10 +1,4 @@
 {
-  "ALPACA_API_KEY":
-"your_real_alpaca_api_key"
-  "ALPACA_API_SECRET":
-"your_real_alpaca_api_secret"
-}
-{
   "alpaca": {
     "ALPACA_API_KEY": "PASTE_YOUR_ALPACA_KEY",
     "ALPACA_API_SECRET": "PASTE_YOUR_ALPACA_SECRET"
