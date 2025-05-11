@@ -6,6 +6,40 @@ from execution_ai.brokers.base_broker import BaseBroker
 from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
 from encryption_utils import load_or_generate_key, encrypt_data, decrypt_data
 load_dotenv()  # Load from .env
+from config import USE_SIMULATED_BROKER
+
+class BrokerInterface:
+    def __init__(self):
+        if USE_SIMULATED_BROKER:
+            self.selected_broker = "SimulatedBroker"
+            self.api_key = "SIMULATED"
+        else:
+            # Your real broker logic (commented or included here)
+            from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
+            handler = AutoBrokerHandler()
+            self.api_key = handler.register_with_broker()["api_key"]
+            self.selected_broker = handler.scan_and_select()["selected"]
+
+    def place_order(self, symbol, qty, side, type="market", time_in_force="gtc"):
+        if USE_SIMULATED_BROKER:
+            print(f"[SIMULATED] {side.upper()} {qty} {symbol}")
+            return {
+                "symbol": symbol,
+                "side": side,
+                "qty": qty,
+                "status": "filled",
+                "broker": "simulated"
+            }
+        else:
+            # Real broker execution (can be a call to Alpaca, etc.)
+            print(f"[REAL] Executing {side.upper()} order via broker")
+            return {
+                "symbol": symbol,
+                "side": side,
+                "qty": qty,
+                "status": "submitted",
+                "broker": self.selected_broker
+            }
 
 class BrokerInterface:
     def __init__(self):
