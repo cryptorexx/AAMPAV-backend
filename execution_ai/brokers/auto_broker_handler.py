@@ -1,23 +1,42 @@
 # execution_ai/brokers/auto_broker_handler.py
 
+from execution_ai.brokers.alpaca_broker import AlpacaBroker
+from execution_ai.brokers.base_broker import BaseBroker
+
 class AutoBrokerHandler:
     def __init__(self):
-        self.available_brokers = ["Alpaca", "Binance", "TestBroker"]
-        self.selected_broker = None
+        self.brokers = {
+            "alpaca": AlpacaBroker  # Can add more brokers here
+        }
+        self.failed_brokers = []
 
     def scan_and_select(self):
-        # Placeholder: simulate logic to pick a broker
-        self.selected_broker = self.available_brokers[0]
-        return {
-            "selected": self.selected_broker,
-            "status": "ready",
-            "note": "Broker auto-selected (simulated)"
-        }
+        """
+        Iterate over available brokers and return the first healthy one.
+        """
+        for name, broker_class in self.brokers.items():
+            if name in self.failed_brokers:
+                continue  # Skip failed brokers
+            
+            try:
+                broker = broker_class()
+                # Try a dummy request or health check (extend later)
+                if hasattr(broker, "ping") and broker.ping():
+                    print(f"[BrokerHandler] Using broker: {name}")
+                    return {"selected": name, "status": "ok"}
+                else:
+                    self.failed_brokers.append(name)
+            except Exception as e:
+                print(f"[BrokerHandler] Broker '{name}' failed: {e}")
+                self.failed_brokers.append(name)
+
+        raise Exception("No valid brokers available.")
 
     def register_with_broker(self):
-        # Placeholder: simulate registration/API key creation
+        """
+        Returns credentials or identity used (simulated).
+        """
         return {
-            "registered": True,
-            "api_key": "auto_generated_key_ABC123",
-            "status": "simulated"
+            "api_key": "AUTO-GENERATED-KEY",
+            "user_id": "BOT-AGENT"
         }
