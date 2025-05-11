@@ -1,8 +1,8 @@
-import requests
 import json
+import requests
 from encryption_utils import encrypt_data, load_or_generate_key, update_env_var
 
-BROKER_JSON_URL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/broker_credentials.json"
+BROKER_JSON_URL = "https://raw.githubusercontent.com/cryptorexx/broker-secrets/main/broker_credentials.json"
 
 def fetch_and_apply_credentials():
     key = load_or_generate_key()
@@ -10,16 +10,15 @@ def fetch_and_apply_credentials():
 
     try:
         response = requests.get(BROKER_JSON_URL)
-        if response.status_code != 200:
-            raise Exception("Failed to fetch broker credentials.")
-
+        response.raise_for_status()
         data = response.json()
 
         for broker, creds in data.items():
-            for var_name, plain_val in creds.items():
-                encrypted_val = fernet_encrypt(plain_val)
-                update_env_var(var_name, encrypted_val)
+            for var, value in creds.items():
+                if value:
+                    encrypted = fernet_encrypt(value)
+                    update_env_var(var, encrypted)
 
-        print("✅ Broker credentials from JSON applied and encrypted.")
+        print("✅ Broker credentials encrypted and loaded into .env.")
     except Exception as e:
-        print(f"❌ Error applying credentials: {e}")
+        print(f"❌ Error loading broker credentials: {e}")
