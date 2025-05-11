@@ -251,3 +251,14 @@ def load_decrypted_env_variable(env_file_path=".env", key_file_path="secret.key"
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=10000)
+
+    @app.get("/test-broker")
+def test_broker(dep=Depends(verify_api_key)):
+    from execution_ai.brokers.broker_interface import BrokerInterface
+    broker = BrokerInterface()
+    return {
+        "selected_broker": broker.selected_broker,
+        "api_key": broker.api_key,
+        "ping_success": broker.handler.get_broker(broker.selected_broker).ping()
+    }
+
