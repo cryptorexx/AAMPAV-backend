@@ -1,11 +1,41 @@
-from cryptography.fernet import Fernet
 import os
+import requests
+from cryptography.fernet import Fernet
 
-def generate_key():
-    key = Fernet.generate_key()
-    with open("secret.key", "wb") as key_file:
-        key_file.write(key)
-    print("✅ secret.key file created.")
+def load_key(key_path="secret.key"):
+    if not os.path.exists(key_path):
+        with open(key_path, "wb") as f:
+            f.write(Fernet.generate_key())
+    with open(key_path, "rb") as f:
+        return f.read()
+
+def auto_initialize_env_live(source_url, key_path="secret.key", env_path=".env"):
+    key = load_key(key_path)
+    fernet = Fernet(key)
+
+    # Fetch live API credentials from secure remote
+    try:
+        response = requests.get(source_url)
+        response.raise_for_status()
+        secrets = response.json()
+    except Exception as e:
+        raise RuntimeError(f"Failed to fetch broker secrets: {e}")
+
+    # Read existing .env if exists
+    existing = {}
+    if os.path.exists(env_path):
+        with open(env_path, "r") as file:
+            for line in file:
+                if "=" in line:
+                    k, v = line.strip().split("=", 1)
+                    existing[k] = v
+
+    # Encrypt and append missing keys
+    with open(env_path, "a") as file:
+        for key_name, plain_value in secrets.items():
+            if key_name not in existing:
+                encrypted = fernet.encrypt(plain_value.encode()).decode()
+                file.write(f"{key_name}={encrypted}\n")
 
 def encrypt_string(plain_string):
     key = load_or_generate_key()
