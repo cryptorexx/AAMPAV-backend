@@ -9,6 +9,7 @@ from strategy_ai.market_schema import MarketData
 from analysis_ai.market_analyzer import MarketAnalyzer
 from execution_ai.smart_execution import SmartExecutor
 from payment_ai.split_manager import WalletManager
+from strategy_ai.decision_engine import generate_signal
 import os
 
 app = FastAPI()
@@ -61,7 +62,7 @@ def start_bot_route(background_tasks: BackgroundTasks, request: Request, dep=Dep
             logs.append("Bot started")
             market_data = market_analyzer.analyze_market("AAPL")
             validated_data = MarketData(**market_data)
-            signal = smart_executor.decision_engine.generate_signal(validated_data)
+            signal = generate_signal(validated_data)
             result = smart_executor.safe_execute("AAPL", signal["action"], 10, 150.0)
             logs.append(result)
         except Exception as e:
