@@ -9,8 +9,10 @@ class WalletManager:
         # PayPal configuration
         paypalrestsdk.configure({
             "mode": "sandbox",  # Change to "live" in production
-            "client_id": "YOUR_PAYPAL_CLIENT_ID",
-            "client_secret": "YOUR_PAYPAL_CLIENT_SECRET"
+            "client_id": 
+            os.getenv("PAYPAL_CLIENT_ID"),
+            "client_secret": 
+            os.getenv("PAYPAL_CLIENT_SECRET")
         })
 
     def split_and_store(self, amount: float) -> dict:
