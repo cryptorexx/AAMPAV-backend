@@ -131,16 +131,3 @@ def update_env_var(var_name, value):
 
     with env_path.open("w") as file:
         file.writelines(lines)
-
-class BrokerFactory:
-    """
-    Returns an instance of a broker based on type.
-    """
-    @staticmethod
-    def get_broker(broker_name: str) -> BaseBroker:
-        if broker_name.lower() == "alpaca":
-            api_key = get_or_encrypt_env_var("ALPACA_API_KEY")
-            api_secret = get_or_encrypt_env_var("ALPACA_API_SECRET")
-            return AlpacaBroker(api_key, api_secret)
-        else:
-            raise ValueError(f"Unsupported broker: {broker_name}")
