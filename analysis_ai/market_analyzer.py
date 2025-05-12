@@ -52,7 +52,7 @@ def infer_symbol_from_headline(title):
         return "GAZP"
     return "GLOBAL"
 
-def analyze_market_conditions():
+def analyze_market():
     news_signals = generate_news_signals_from_api()
     news_signals = cleanup_old_signals(news_signals)
 
