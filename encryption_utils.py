@@ -15,6 +15,51 @@ def encrypt_broker_credentials(key, fernet):
     with open(BROKER_JSON_PATH, "w") as file:
         json.dump(brokers, file, indent=2)
 
+def get_or_encrypt_env_var(var_name: str, plain_value: str = None, key_file_path="secret.key", env_path=".env"):
+    """
+    Retrieves and decrypts an env variable, or encrypts and stores it if missing or plain.
+    """
+    if not os.path.exists(key_file_path):
+        key = Fernet.generate_key()
+        with open(key_file_path, "wb") as f:
+            f.write(key)
+    else:
+        with open(key_file_path, "rb") as f:
+            key = f.read()
+
+    fernet = Fernet(key)
+
+    current = os.getenv(var_name)
+    if current and not current.startswith("gAAAA"):
+        encrypted = fernet.encrypt(current.encode()).decode()
+        update_env_var(var_name, encrypted, env_path)
+        return current
+    elif current and current.startswith("gAAAA"):
+        return fernet.decrypt(current.encode()).decode()
+    elif plain_value:
+        encrypted = fernet.encrypt(plain_value.encode()).decode()
+        update_env_var(var_name, encrypted, env_path)
+        return plain_value
+    else:
+        raise Exception(f"{var_name} is not set and no fallback provided.")
+
+def update_env_var(var_name: str, encrypted_value: str, env_path: str = ".env"):
+    lines = []
+    found = False
+    if os.path.exists(env_path):
+        with open(env_path, "r") as f:
+            for line in f:
+                if line.startswith(f"{var_name}="):
+                    lines.append(f"{var_name}={encrypted_value}\n")
+                    found = True
+                else:
+                    lines.append(line)
+    if not found:
+        lines.append(f"{var_name}={encrypted_value}\n")
+
+    with open(env_path, "w") as f:
+        f.writelines(lines)
+
 def load_key(key_path="secret.key"):
     if not os.path.exists(key_path):
         with open(key_path, "wb") as f:
