@@ -6,15 +6,6 @@ import json
 
 BROKER_JSON_PATH = Path(__file__).resolve().parent / "brokers.json"
 
-def encrypt_broker_credentials(key, fernet):
-    with open(BROKER_JSON_PATH, "r") as file:
-        brokers = json.load(file)
-    for broker in brokers:
-        broker["api_key"] = encrypt_data(broker["api_key"], fernet)
-        broker["api_secret"] = encrypt_data(broker["api_secret"], fernet)
-    with open(BROKER_JSON_PATH, "w") as file:
-        json.dump(brokers, file, indent=2)
-
 def get_or_encrypt_env_var(var_name: str, plain_value: str = None, key_file_path="secret.key", env_path=".env"):
     """
     Retrieves and decrypts an env variable, or encrypts and stores it if missing or plain.
@@ -42,6 +33,15 @@ def get_or_encrypt_env_var(var_name: str, plain_value: str = None, key_file_path
         return plain_value
     else:
         raise Exception(f"{var_name} is not set and no fallback provided.")
+
+def encrypt_broker_credentials(key, fernet):
+    with open(BROKER_JSON_PATH, "r") as file:
+        brokers = json.load(file)
+    for broker in brokers:
+        broker["api_key"] = encrypt_data(broker["api_key"], fernet)
+        broker["api_secret"] = encrypt_data(broker["api_secret"], fernet)
+    with open(BROKER_JSON_PATH, "w") as file:
+        json.dump(brokers, file, indent=2)
 
 def update_env_var(var_name: str, encrypted_value: str, env_path: str = ".env"):
     lines = []
