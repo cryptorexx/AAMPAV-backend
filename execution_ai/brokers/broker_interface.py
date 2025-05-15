@@ -9,6 +9,14 @@ load_dotenv()  # Load from .env
 from config import USE_SIMULATED_BROKER
 from pathlib import Path
 
+from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
+
+class BrokerInterface:
+    def __init__(self):
+        handler = AutoBrokerHandler()
+        self.api_key = handler.register_with_broker()["api_key"]
+        self.selected_broker = handler.scan_and_select()["selected"]
+
 BROKER_JSON_PATH = Path(__file__).resolve().parent.parent / "brokers.json"
 
 def load_brokers(file_path="config/brokers.json"):
