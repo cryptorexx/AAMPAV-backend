@@ -9,6 +9,7 @@ load_dotenv()  # Load from .env
 from config import USE_SIMULATED_BROKER
 from pathlib import Path
 from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
+from execution_ai.brokers.broker_utils import load_brokers, save_brokers
 
 class BrokerInterface:
     def __init__(self):
