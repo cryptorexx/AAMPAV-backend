@@ -3,7 +3,10 @@
 from execution_ai.brokers.alpaca_broker import AlpacaBroker
 from execution_ai.brokers.base_broker import BaseBroker
 from execution_ai.brokers.universal_broker import UniversalBroker
-from execution_ai.brokers.broker_utils import load_brokers, save_brokers
+from execution_ai.brokers import broker_interface
+
+brokers = broker_interface.load_brokers()
+broker_interface.save_brokers(brokers)
 
 class AutoBrokerHandler:
     def scan_and_select(self):
