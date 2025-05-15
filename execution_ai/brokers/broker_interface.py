@@ -4,11 +4,9 @@ from dotenv import load_dotenv
 from cryptography.fernet import Fernet
 from execution_ai.brokers.alpaca_broker import AlpacaBroker
 from execution_ai.brokers.base_broker import BaseBroker
-from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
 from encryption_utils import load_or_generate_key, encrypt_data, decrypt_data
 load_dotenv()  # Load from .env
 from config import USE_SIMULATED_BROKER
-from execution_ai.brokers.auto_broker_handler import AutoBrokerHandler
 from pathlib import Path
 
 BROKER_JSON_PATH = Path(__file__).resolve().parent.parent / "brokers.json"
