@@ -1,80 +1,35 @@
-# execution_ai/brokers/auto_broker_handler.py
-
-from execution_ai.brokers.alpaca_broker import AlpacaBroker
-from execution_ai.brokers.base_broker import BaseBroker
-from execution_ai.brokers.universal_broker import UniversalBroker
+import json
+import random
+from typing import Dict, Any
 from execution_ai.brokers.broker_utils import load_brokers, save_brokers
-
-brokers = broker_interface.load_brokers()
-broker_interface.save_brokers(brokers)
-
-class AutoBrokerHandler:
-    def scan_and_select(self):
-        brokers = load_brokers()
-        if not brokers:
-            raise Exception("No brokers found. Ensure brokers.json exists with entries.")
-        return {
-            "selected": brokers[0]["name"],
-            "api_key": brokers[0]["api_key"],
-            "api_secret": brokers[0]["api_secret"]
-        }
-
-    def register_with_broker(self):
-        broker = self.scan_and_select()
-        return {
-            "broker": broker["selected"],
-            "api_key": broker["api_key"]
-        }
+from execution_ai.brokers.universal_broker import UniversalBroker
 
 class AutoBrokerHandler:
     def __init__(self):
-        self.supported = ["alpaca", "binance", "fxcm"]  # Expand this list freely
+        self.brokers = load_brokers()
 
-    def scan_and_select(self):
-        for broker in self.supported:
-            instance = UniversalBroker(broker)
-            if instance.connected:
-                return {"selected": broker, "instance": instance}
-        return {"selected": None, "instance": None}
-
-    def register_with_broker(self):
-        result = self.scan_and_select()
-        return {"broker": result["selected"], "api_key": result["instance"].api_key if result["instance"] else None}
-
-class AutoBrokerHandler:
-    def __init__(self):
-        self.brokers = {
-            "alpaca": AlpacaBroker  # Can add more brokers here
-        }
-        self.failed_brokers = []
-
-    def scan_and_select(self):
+    def scan_and_select(self) -> Dict[str, Any]:
         """
-        Iterate over available brokers and return the first healthy one.
+        Simulates scanning available brokers and selects one.
         """
-        for name, broker_class in self.brokers.items():
-            if name in self.failed_brokers:
-                continue  # Skip failed brokers
-            
-            try:
-                broker = broker_class()
-                # Try a dummy request or health check (extend later)
-                if hasattr(broker, "ping") and broker.ping():
-                    print(f"[BrokerHandler] Using broker: {name}")
-                    return {"selected": name, "status": "ok"}
-                else:
-                    self.failed_brokers.append(name)
-            except Exception as e:
-                print(f"[BrokerHandler] Broker '{name}' failed: {e}")
-                self.failed_brokers.append(name)
+        if not self.brokers:
+            return {"error": "No brokers available."}
 
-        raise Exception("No valid brokers available.")
+        selected = random.choice(self.brokers)
+        return {"selected": selected}
 
-    def register_with_broker(self):
+    def register_with_broker(self) -> Dict[str, str]:
         """
-        Returns credentials or identity used (simulated).
+        Simulate broker registration and return credentials.
         """
-        return {
-            "api_key": "AUTO-GENERATED-KEY",
-            "user_id": "BOT-AGENT"
-        }
+        dummy_api_key = "auto_generated_api_key"
+        dummy_api_secret = "auto_generated_api_secret"
+        return {"api_key": dummy_api_key, "api_secret": dummy_api_secret}
+
+    def onboard_new_broker(self, broker_data: Dict[str, Any]) -> str:
+        """
+        Add new broker to the brokers list.
+        """
+        self.brokers.append(broker_data)
+        save_brokers(self.brokers)
+        return "New broker onboarded successfully."
