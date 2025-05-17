@@ -154,3 +154,7 @@ if __name__ == "__main__":
     api_key = "PASTE_YOUR_REAL_API_KEY_HERE"
     encrypted_api_key = encrypt_string(api_key)
     save_to_env(encrypted_api_key)
+
+def load_decrypted_env_variable(env_file_path=".env"):
+    creds = load_decrypted_credentials(env_file_path)
+    return creds.get("ENCRYPTED_API_KEY")
