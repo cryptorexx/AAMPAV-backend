@@ -158,3 +158,12 @@ if __name__ == "__main__":
 def load_decrypted_env_variable(env_file_path=".env"):
     creds = load_decrypted_credentials(env_file_path)
     return creds.get("ENCRYPTED_API_KEY")
+
+if __name__ == "__main__":
+    import sys
+    if "--init" in sys.argv:
+        key = load_or_generate_key()
+        api_key = os.getenv("RAW_API_KEY") or "PASTE_YOUR_REAL_API_KEY_HERE"
+        encrypted = encrypt_string(api_key)
+        save_to_env(encrypted)
+        print("✅ Encrypted API key auto-injected to .env")
